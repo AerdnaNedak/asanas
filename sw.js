@@ -1,5 +1,5 @@
 /* Asanas: hält die App offline verfügbar. Die Posen speichert die App selbst (Cache „asanas-daten“). */
-const CACHE = 'asanas-v6';
+const CACHE = 'asanas-v7';
 const FONTS = 'asanas-fonts';
 const KEEP = [CACHE, FONTS, 'asanas-daten'];
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];

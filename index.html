@@ -218,7 +218,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 <script>
 (function () {
   'use strict';
-  var VERSION = '6';
+  var VERSION = '7';
   /* Dropbox-App-Schlüssel (öffentlich, kein Geheimnis). Dieselbe Dropbox-App wie beim Moderationsdeck. */
   var APP_KEY = 'prtle6jx22kouds';
   var DEFAULT_FOLDER = '/03 Apps/Yoga/app-daten';
@@ -253,7 +253,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
   var S = {
     data: null, byId: {}, imgs: {}, list: [], filterOpen: false,
     f: { q: '', phases: [], types: [], targets: [] },
-    imgIdx: {}, session: null, syncing: false, connectErr: ''
+    imgIdx: {}, session: null, syncing: false, connectErr: '', progress: '', lastErr: ''
   };
 
   /* ---------- Hilfen ---------- */
@@ -350,7 +350,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     if (S.syncing) return;
     if (!LOCAL && !connected()) { if (manual) toast('Erst mit Dropbox verbinden'); return; }
     if (!navigator.onLine) { if (manual) toast('Du bist offline. Die gespeicherten Daten bleiben.'); return; }
-    S.syncing = true; if (manual) toast('Suche nach neuen Daten …', 1800);
+    S.syncing = true; if (manual) toast('Suche nach neuen Daten …', 1800); if (!S.data) render();
     try {
       var c = await caches.open(DATA_CACHE);
       var res = await getFile('asanas.json');
@@ -360,11 +360,25 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
       d.poses.forEach(function (p) { p.images.forEach(function (n) { all[n] = 1; }); });
       for (var n in all) { if (!(await c.match(ckey('img/' + n)))) need.push(n); }
       var changed = !S.data || S.data.version !== d.version || need.length > 0;
-      for (var i = 0; i < need.length; i++) {
-        toast('Lade Zeichnungen ' + (i + 1) + ' von ' + need.length, 4000);
-        var ir = await getFile('img/' + need[i]);
-        await c.put(ckey('img/' + need[i]), new Response(await ir.blob(), { headers: { 'Content-Type': 'image/jpeg' } }));
+      S.lastErr = '';
+      /* Posen sofort zeigen, Zeichnungen danach nachladen (4 gleichzeitig) */
+      if (changed) { setData(d); await loadImages(c); render(); }
+      var done = 0, failed = 0;
+      async function worker() {
+        while (need.length) {
+          var name = need.shift();
+          try {
+            var ir = await getFile('img/' + name);
+            await c.put(ckey('img/' + name), new Response(await ir.blob(), { headers: { 'Content-Type': 'image/jpeg' } }));
+          } catch (e) { if (e && e.code === 'auth') throw e; failed++; }
+          done++;
+          S.progress = 'Lade Zeichnungen: ' + done + ' von ' + total; showProgress();
+        }
       }
+      var total = need.length;
+      if (total) { S.progress = 'Lade Zeichnungen: 0 von ' + total; showProgress(); await Promise.all([worker(), worker(), worker(), worker()]); }
+      S.progress = ''; showProgress();
+      if (failed) S.lastErr = failed + ' Zeichnungen konnten nicht geladen werden. Tippe später noch einmal auf „Jetzt aktualisieren“.';
       var keys = await c.keys();
       for (var k = 0; k < keys.length; k++) {
         var m = keys[k].url.match(/__daten\/img\/(.+)$/);
@@ -377,9 +391,17 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
         toast('Daten aktualisiert: ' + d.poses.length + ' Posen');
       } else if (manual) toast('Alles aktuell');
     } catch (err) {
-      if (manual || !S.data) toast(errText(err), 5000);
+      S.progress = ''; showProgress();
+      S.lastErr = errText(err);
+      if (manual || !S.data) toast(S.lastErr, 6000);
+      if (route().v === 'settings' || !S.data) render();
       if (err && err.code === 'auth' && location.hash.indexOf('einstellungen') > 0) render();
     } finally { S.syncing = false; }
+  }
+
+  function showProgress() {
+    var el = $('progress');
+    if (el) { el.textContent = S.progress || ''; el.hidden = !S.progress; }
   }
 
   /* ---------- Filter ---------- */
@@ -418,6 +440,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
   }
 
   function welcome() {
+    if (connected()) return '<div class="welcome"><h2>Verbunden</h2><p>' + (S.syncing ? 'Die Posen werden geladen. Einen Moment …' : (S.lastErr ? esc(S.lastErr) : 'Noch keine Posen geladen.')) + '</p>' +
+      (S.syncing ? '' : '<button class="btn solid" data-act="sync">Posen laden</button>') + '</div>';
     return '<div class="welcome"><h2>Willkommen</h2>' +
       '<p>Deine Posen liegen in deiner Dropbox im Ordner „' + esc(pref.folder) + '“. Verbinde die App einmal mit Dropbox. Danach speichert sie alles auf diesem Gerät, auch für unterwegs ohne Netz.</p>' +
       '<a class="btn solid" href="#/einstellungen" style="display:inline-flex;align-items:center">Mit Dropbox verbinden</a></div>';
@@ -450,6 +474,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
       d.targets.forEach(function (t) { h += chip('targets', t, t, f.targets.indexOf(t) >= 0); });
       h += '</div></div></div>';
     }
+    h += '<p class="small muted" id="progress"' + (S.progress ? '' : ' hidden') + '>' + esc(S.progress || '') + '</p>';
     h += '<div id="list"></div></div>';
     app.innerHTML = h;
     renderList();
@@ -636,6 +661,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     if (LOCAL) h += '<p class="small muted">Testmodus auf diesem Computer: Die Daten kommen aus dem Ordner „dev-daten“.</p>';
     h += d ? '<p>' + d.poses.length + ' Posen, davon ' + d.poses.filter(function (p) { return p.full; }).length + ' ausführlich. Stand ' + esc(d.version.slice(6, 8) + '.' + d.version.slice(4, 6) + '.' + d.version.slice(0, 4)) +
       (synced ? ', zuletzt geprüft ' + new Date(synced).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '') + '.</p>' : '<p>Noch keine Daten auf diesem Gerät.</p>';
+    if (S.lastErr) h += '<p class="err">' + esc(S.lastErr) + '</p>';
+    h += '<p class="small muted" id="progress"' + (S.progress ? '' : ' hidden') + '>' + esc(S.progress || '') + '</p>';
     h += '<button class="btn sm" data-act="sync"' + (LOCAL || connected() ? '' : ' disabled') + '>Jetzt aktualisieren</button></div>';
     if (!LOCAL) {
       h += '<div class="panel"><h2>Dropbox</h2>';
