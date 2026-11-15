@@ -36,5 +36,5 @@ Web-App (PWA) zum Lesen und Lernen von Yoga-Posen für Andreas Yogalehrer-Ausbil
 ## Offen
 
 - 48 Posen haben nur Grunddaten. Texte in Runden ergänzen: Build-up erledigt (Runde 1, 15.11.2026), danach Warm-up, Cool-down, Relaxation, Peak.
-- Zeichnungen fehlen bei vielen Posen; manche vorhandene Bilder sind Fotos statt Zeichnungen. Skill `codex-bild` im einheitlichen Stil.
+- Alle 92 Posen haben seit 15.11.2026 eine Zeichnung. Neue oder misslungene Zeichnungen: `python3 tools/zeichnen.py <id>` (Skill codex-bild, nacheinander, nie parallel; Beschreibung pro Pose in `POSES`). Ein paar Zusatzbilder sind noch Fotos (Extended Puppy, Extended Side Angle, Extended Triangle, Extended Hand-to-Big-Toe, Eight-Angle Nr. 2).
 - Dropbox-Anmeldung auf iPhone/iPad durch Andrea testen.
