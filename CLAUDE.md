@@ -35,6 +35,8 @@ Web-App (PWA) zum Lesen und Lernen von Yoga-Posen für Andreas Yogalehrer-Ausbil
 
 ## Offen
 
-- 48 Posen haben nur Grunddaten. Texte in Runden ergänzen: Build-up erledigt (Runde 1, 15.11.2026), danach Warm-up, Cool-down, Relaxation, Peak.
+- 19 Peak-Posen haben noch keinen Text. Erledigt am 15.11.2026: Build-up (Runde 1), Warm-up, Relaxation und Cool-down (Runde 2).
+- Pigeon Pose: Im Notion-Export stand „Kapotasana“ (bei Yoga Journal die tiefe kniende Rückbeuge). In der App ist Pigeon jetzt der übliche Hüftöffner „Eka Pada Rajakapotasana (prep)“. Falls die Ausbildung Kapotasana braucht, als eigene Peak-Pose ergänzen.
+- Idee (noch nicht entschieden): Stuhl-Yoga – Filter „Chair friendly“, Stuhl-Varianten mit Zeichnung und Text für alle geeigneten Posen.
 - Alle 92 Posen haben seit 15.11.2026 eine Zeichnung. Neue oder misslungene Zeichnungen: `python3 tools/zeichnen.py <id>` (Skill codex-bild, nacheinander, nie parallel; Beschreibung pro Pose in `POSES`). Ein paar Zusatzbilder sind noch Fotos (Extended Puppy, Extended Side Angle, Extended Triangle, Extended Hand-to-Big-Toe, Eight-Angle Nr. 2).
 - Dropbox-Anmeldung auf iPhone/iPad durch Andrea testen.
