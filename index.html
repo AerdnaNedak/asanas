@@ -183,7 +183,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 <script>
 (function () {
   'use strict';
-  var VERSION = '4';
+  var VERSION = '5';
   /* Dropbox-App-Schlüssel (öffentlich, kein Geheimnis). Dieselbe Dropbox-App wie beim Moderationsdeck. */
   var APP_KEY = 'prtle6jx22kouds';
   var DEFAULT_FOLDER = '/03 Apps/Yoga/app-daten';
@@ -609,7 +609,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     h += '<div class="panel"><h2>Lernen</h2><div class="toggle"><span>Sanskrit-Karten</span><button class="sw' + (pref.sanskrit ? ' on' : '') + '" data-act="sanskrit" aria-label="Sanskrit-Karten"></button></div>' +
       '<p class="small muted">Wenn eingeschaltet, gibt es zusätzlich Karten „Sanskrit → Name“, und die Antworten zeigen den Sanskrit-Namen.</p>' +
       '<button class="btn sm" data-act="reset-learn">Lernstand zurücksetzen</button></div>';
-    h += '<div class="panel"><h2>Ansicht</h2><div class="seg">' + [['auto', 'Automatisch'], ['light', 'Hell'], ['dark', 'Dunkel']].map(function (t) { return '<button class="' + (pref.theme === t[0] ? 'on' : '') + '" data-theme="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div></div>';
+    h += '<div class="panel"><h2>Ansicht</h2><div class="seg">' + [['auto', 'Automatisch'], ['light', 'Hell'], ['dark', 'Dunkel']].map(function (t) { return '<button class="' + (pref.theme === t[0] ? 'on' : '') + '" data-set-theme="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div></div>';
     h += '<p class="small muted" style="text-align:center">Asanas · Version ' + VERSION + '</p></div>';
     app.innerHTML = h;
     var link = $('dbxLink');
@@ -618,7 +618,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 
   /* ---------- Bedienung ---------- */
   document.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-act],[data-f],[data-go],[data-img],[data-dir],[data-scope],[data-theme]');
+    var t = e.target.closest('[data-act],[data-f],[data-go],[data-img],[data-dir],[data-scope],[data-set-theme]');
     if (!t) return;
     if (t.hasAttribute('data-f')) {
       var g = t.getAttribute('data-f'), v = t.getAttribute('data-v'), arr = S.f[g], ix = arr.indexOf(v);
@@ -630,7 +630,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     if (t.hasAttribute('data-img')) { S.imgIdx[route().id] = +t.getAttribute('data-img'); renderPose(route().id); return; }
     if (t.hasAttribute('data-dir')) { var k = t.getAttribute('data-dir'); pref.dirs[k] = !pref.dirs[k]; savePref(); renderLearn(); return; }
     if (t.hasAttribute('data-scope')) { pref.scope = t.getAttribute('data-scope'); savePref(); renderLearn(); return; }
-    if (t.hasAttribute('data-theme')) { pref.theme = t.getAttribute('data-theme'); savePref(); applyTheme(); renderSettings(); return; }
+    if (t.hasAttribute('data-set-theme')) { pref.theme = t.getAttribute('data-set-theme'); savePref(); applyTheme(); renderSettings(); return; }
     switch (t.getAttribute('data-act')) {
       case 'toggle-filter': S.filterOpen = !S.filterOpen; renderBrowse(); break;
       case 'reset': S.f = { q: '', phases: [], types: [], targets: [] }; renderBrowse(); break;
