@@ -183,7 +183,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 <script>
 (function () {
   'use strict';
-  var VERSION = '2';
+  var VERSION = '3';
   /* Dropbox-App-Schlüssel (öffentlich, kein Geheimnis). Dieselbe Dropbox-App wie beim Moderationsdeck. */
   var APP_KEY = 'prtle6jx22kouds';
   var DEFAULT_FOLDER = '/03 Apps/Yoga/app-daten';
@@ -241,7 +241,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
   function b64url(buf) { var s = '', b = new Uint8Array(buf); for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
   function connected() { return !!(auth && auth.refresh); }
   async function prepareConnect() {
-    var v = b64url(crypto.getRandomValues(new Uint8Array(48)));
+    /* Vorhandenen Schlüssel weiterverwenden, sonst passt ein schon geholter Code nach dem Neuladen nicht mehr. */
+    var v = lsGet('as.pkce', null) || b64url(crypto.getRandomValues(new Uint8Array(48)));
     lsSet('as.pkce', v);
     var ch = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v)));
     return 'https://www.dropbox.com/oauth2/authorize?client_id=' + encodeURIComponent(APP_KEY) + '&response_type=code&code_challenge=' + ch + '&code_challenge_method=S256&token_access_type=offline';
