@@ -10,6 +10,7 @@ Web-App (PWA) zum Lesen und Lernen von Yoga-Posen für Andreas Yogalehrer-Ausbil
 
 ## Aufbau
 
+- Online über GitHub Pages: https://aerdnanedak.github.io/asanas/ (Repo `AerdnaNedak/asanas`, öffentlich). Ein `git push` auf `main` veröffentlicht.
 - `index.html`: die ganze App (CSS und JS inline). `sw.js`: Offline-Cache für die App. `manifest.webmanifest` und Icons.
 - **Bei jeder App-Änderung** `CACHE` in `sw.js` und `VERSION` in `index.html` hochzählen.
 - Die Inhalte liegen **nicht** im Repo, sondern privat in der Dropbox. Die Texte stammen ursprünglich von Yoga Journal und dürfen nie in dieses (öffentliche) Repo.
@@ -34,4 +35,4 @@ Web-App (PWA) zum Lesen und Lernen von Yoga-Posen für Andreas Yogalehrer-Ausbil
 
 - 67 Posen haben nur Grunddaten. Texte in Andreas Struktur ergänzen (eigene Formulierungen).
 - Zeichnungen fehlen bei vielen Posen; manche vorhandene Bilder sind Fotos statt Zeichnungen. Skill `codex-bild` im einheitlichen Stil.
-- Veröffentlichen über GitHub Pages (noch nicht passiert).
+- Dropbox-Anmeldung auf iPhone/iPad durch Andrea testen.
