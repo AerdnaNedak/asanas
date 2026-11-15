@@ -111,8 +111,9 @@ CHAIR = {
    'Chair Bound Angle: sitting on the front of the chair, feet wide apart with the soles turned slightly inward, knees falling open, hands on the thighs, spine long, seen from the front.'),
 }
 # Vorhandene Stuhl-Zeichnungen (Notion): nur Text ergänzen
+CHAIR["downward-facing-dog"] = (None, "Downward-Facing Dog with chair: hands on the seat of a chair placed against a wall, arms straight, feet walked back hip-width, hips lifted, back long, head between the arms, seen from the side.")
 for k in ["easy-pose", "cow-pose", "cow-face-pose", "eagle-pose", "dolphin-pose", "dolphin-plank-pose",
-          "downward-facing-dog", "extended-triangle-pose", "extended-side-angle-pose", "corpse-pose"]:
+          "extended-triangle-pose", "extended-side-angle-pose", "corpse-pose"]:
     CHAIR.setdefault(k, None)
 TEXT_VORHANDEN = {
  "easy-pose": ["Sit tall on the chair, feet flat or ankles crossed","Hands rest on the knees","Spine long, shoulders soft","Close the eyes, breathe"],
@@ -134,7 +135,7 @@ def datei(pid):
 
 def texte():
     for pid, val in CHAIR.items():
-        schritte = TEXT_VORHANDEN.get(pid) if val is None and pid in TEXT_VORHANDEN else (val[0] if val else None)
+        schritte = TEXT_VORHANDEN.get(pid) if pid in TEXT_VORHANDEN else (val[0] if val else None)
         if not schritte:
             print("kein Text:", pid); continue
         s = open(datei(pid), encoding="utf-8").read()
