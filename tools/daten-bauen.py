@@ -20,7 +20,7 @@ SECTIONS = [  # Überschrift in der Datei -> Schlüssel
     ("Contraindications and cautions", "cautions"), ("Benefits", "benefits"),
     ("Deepen the pose", "deepen"), ("Beginner’s tip", "beginner"), ("Teacher tip", "teacher"),
     ("Preparatory poses", "preparatory"), ("Counter poses", "counter"), ("Variations", "variations"),
-    ("Follow-up poses", "followup"), ("Cue card", "cue"),
+    ("Follow-up poses", "followup"), ("Chair version", "chair"), ("Cue card", "cue"),
 ]
 KEY = {t.lower().replace("'", "’"): k for t, k in SECTIONS}
 TITLE = {k: t for t, k in SECTIONS}
@@ -89,7 +89,7 @@ def main():
             if not os.path.isfile(src):
                 warn.append(f"{pid}: Bild fehlt: {name}")
                 continue
-            fn = make_jpg(src, img_dir, f"{pid}-{i}")
+            fn = make_jpg(src, img_dir, f"{pid}-chair" if "-chair" in name else f"{pid}-{i}")
             used.add(fn)
             imgs.append(fn)
         phases = split_list(head.get("phases"))

@@ -193,6 +193,15 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 .cue { background: var(--ocean); color: #EEF5F7; }
 .cue h2 { color: #F4A898; }
 .cue ol li::marker { color: #F4A898; font-weight: 700; }
+.chairbox { background: color-mix(in srgb, #B07A4A 14%, var(--card)); border: 2px solid color-mix(in srgb, #B07A4A 55%, transparent); border-radius: 16px; padding: 12px 16px; margin: 12px 0; }
+.chairbox h2 { font-size: 18px; margin-bottom: 8px; color: #8A5A2E; display: flex; align-items: center; gap: 8px; }
+:root[data-theme="dark"] .chairbox h2 { color: #E2B48A; }
+.chairbox img { width: 100%; max-height: 50vh; object-fit: contain; background: #fff; border-radius: 12px; margin-bottom: 8px; }
+.chairbox ol { margin: 0; padding-left: 22px; line-height: 1.55; }
+.chip.chair { border-color: #B07A4A; color: #8A5A2E; background: color-mix(in srgb, #B07A4A 14%, var(--card)); font-weight: 600; }
+:root[data-theme="dark"] .chip.chair { color: #E2B48A; }
+.chip.chair.on { background: #B07A4A; color: #fff; border-color: #B07A4A; }
+.cbadge { font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; background: #B07A4A; color: #fff; line-height: 1.4; }
 .sec summary { justify-content: flex-start; gap: 10px; }
 .sec summary::before { content: ''; width: 10px; height: 10px; border-radius: 3px; background: var(--k, var(--ac)); flex: none; }
 .sec summary::after { margin-left: auto; }
@@ -218,7 +227,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 <script>
 (function () {
   'use strict';
-  var VERSION = '7';
+  var VERSION = '8';
   /* Dropbox-App-Schlüssel (öffentlich, kein Geheimnis). Dieselbe Dropbox-App wie beim Moderationsdeck. */
   var APP_KEY = 'prtle6jx22kouds';
   var DEFAULT_FOLDER = '/03 Apps/Yoga/app-daten';
@@ -252,7 +261,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 
   var S = {
     data: null, byId: {}, imgs: {}, list: [], filterOpen: false,
-    f: { q: '', phases: [], types: [], targets: [] },
+    f: { q: '', phases: [], types: [], targets: [], chair: false },
     imgIdx: {}, session: null, syncing: false, connectErr: '', progress: '', lastErr: ''
   };
 
@@ -414,10 +423,13 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     if (f.phases.length && !p.phases.some(function (x) { return f.phases.indexOf(x) >= 0; })) return false;
     if (f.types.length && !p.types.some(function (x) { return f.types.indexOf(x) >= 0; })) return false;
     if (f.targets.length && !p.targets.some(function (x) { return f.targets.indexOf(x) >= 0; })) return false;
+    if (f.chair && !p.chair) return false;
     return true;
   }
   function filtered() { return S.data ? S.data.poses.filter(matches) : []; }
-  function nFilters() { return S.f.phases.length + S.f.types.length + S.f.targets.length; }
+  function nFilters() { return S.f.phases.length + S.f.types.length + S.f.targets.length + (S.f.chair ? 1 : 0); }
+  function isChairImg(n) { return /-chair-/.test(n); }
+  var CHAIR_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v9h10V3"/><path d="M6 12h12v3H6z"/><path d="M7 15v6M17 15v6"/></svg>';
 
   /* ---------- Ansichten ---------- */
   function route() {
@@ -465,6 +477,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     }).join('') + '</div>';
     h += '<div class="search"><input id="q" type="search" placeholder="Suchen: English, Deutsch, Sanskrit" value="' + esc(f.q) + '" autocomplete="off" autocorrect="off" spellcheck="false"><button class="clear" data-act="clear-q" aria-label="Suche löschen"' + (f.q ? '' : ' hidden') + '>×</button></div>';
     h += '<div class="fbar"><button class="fbtn' + (nFilters() ? ' on' : '') + '" data-act="toggle-filter">Filter' + (nFilters() ? ' (' + nFilters() + ')' : '') + (S.filterOpen ? ' ▴' : ' ▾') + '</button>';
+    h += '<button class="chip chair' + (f.chair ? ' on' : '') + '" data-act="chair-filter">' + CHAIR_SVG + 'Chair</button>';
     d.phases.forEach(function (p) { h += chip('phases', p, p, f.phases.indexOf(p) >= 0, true); });
     h += '</div>';
     if (S.filterOpen) {
@@ -494,7 +507,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
         '<div class="cbody"><div class="en">' + esc(p.en) + '</div><div class="de">' + esc(p.de) + '</div>' +
         (p.sa ? '<div class="sa">' + esc(p.sa) + '</div>' : '') +
         '<div class="cmeta">' + p.phases.map(function (x) { return '<span class="pbadge" style="' + phStyle(x) + '">' + esc(x) + '</span>'; }).join('') +
-        '<span class="muted small">' + esc(p.types.join(' · ')) + '</span>' + (p.full ? '' : '<span class="basic">nur Grunddaten</span>') + '</div></div></a>';
+        '<span class="muted small">' + esc(p.types.join(' · ')) + '</span>' + (p.chair ? '<span class="cbadge">Chair</span>' : '') + (p.full ? '' : '<span class="basic">nur Grunddaten</span>') + '</div></div></a>';
     });
     el.innerHTML = h + '</div>';
   }
@@ -522,7 +535,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
       '<button class="ibtn" data-go="' + esc(prev || '') + '"' + (prev ? '' : ' disabled') + ' aria-label="Vorherige Pose">‹</button>' +
       '<button class="ibtn" data-go="' + esc(next || '') + '"' + (next ? '' : ' disabled') + ' aria-label="Nächste Pose">›</button></div>';
     h += '<div class="pose" id="poseBody">';
-    var imgs = p.images.filter(function (n) { return S.imgs[n]; });
+    var imgs = p.images.filter(function (n) { return S.imgs[n] && !isChairImg(n); });
+    var chairImg = p.images.filter(function (n) { return S.imgs[n] && isChairImg(n); })[0];
     var k = Math.min(S.imgIdx[id] || 0, Math.max(imgs.length - 1, 0));
     if (imgs.length) {
       h += '<div class="hero"><img src="' + S.imgs[imgs[k]] + '" alt="Zeichnung ' + esc(p.en) + '">';
@@ -543,7 +557,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     if (cue && cue.items.length) h += '<div class="cue"><h2>Cue card</h2><ol>' + cue.items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></div>';
     if (!p.full) h += '<div class="box">Für diese Pose gibt es bisher nur die Grunddaten. Die Beschreibung kommt später dazu.</div>';
     p.sections.forEach(function (s) {
-      if (s.key === 'cue') return;
+      if (s.key === 'cue' || s.key === 'chair') return;
       var open = s.key === 'description' || s.key === 'steps';
       var linky = s.key === 'preparatory' || s.key === 'counter' || s.key === 'followup' || s.key === 'variations';
       h += '<details class="sec"' + (open ? ' open' : '') + (SECCOL[s.key] ? ' style="--k:' + SECCOL[s.key] + '"' : '') + '><summary>' + esc(s.title) + '</summary><div class="in">' +
@@ -551,6 +565,11 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
         (s.items.length ? (s.key === 'steps' ? '<ol>' : '<ul>') + s.items.map(function (t) { return '<li>' + (linky ? poseLinks(t) : esc(t)) + '</li>'; }).join('') + (s.key === 'steps' ? '</ol>' : '</ul>') : '') +
         '</div></details>';
     });
+    var ch = p.sections.filter(function (s) { return s.key === 'chair'; })[0];
+    if (ch || chairImg) {
+      h += '<div class="chairbox"><h2>' + CHAIR_SVG + 'Chair version</h2>' + (chairImg ? '<img src="' + S.imgs[chairImg] + '" alt="Stuhl-Variante ' + esc(p.en) + '">' : '') +
+        (ch && ch.items.length ? '<ol>' + ch.items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' : '') + '</div>';
+    }
     h += '</div>';
     app.innerHTML = h;
     window.scrollTo(0, 0);
@@ -564,7 +583,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
       DIRS.forEach(function (d) {
         if (!pref.dirs[d.k]) return;
         if (d.sa && (!pref.sanskrit || !p.sa)) return;
-        if (d.k === 'img' && !p.images.some(function (n) { return S.imgs[n]; })) return;
+        if (d.k === 'img' && !p.images.some(function (n) { return S.imgs[n] && !isChairImg(n); })) return;
         cards.push(p.id + '|' + d.k);
       });
     });
@@ -604,7 +623,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
   function cardHtml(c, show) {
     var parts = c.split('|'), p = S.byId[parts[0]], dir = parts[1];
     if (!p) return '';
-    var img = p.images.filter(function (n) { return S.imgs[n]; })[0];
+    var img = p.images.filter(function (n) { return S.imgs[n] && !isChairImg(n); })[0];
     var label = DIRS.filter(function (d) { return d.k === dir; })[0].label;
     var q = '';
     if (dir === 'enDe') q = '<div class="q">' + esc(p.en) + '</div>';
@@ -704,7 +723,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     if (t.hasAttribute('data-set-theme')) { pref.theme = t.getAttribute('data-set-theme'); savePref(); applyTheme(); renderSettings(); return; }
     switch (t.getAttribute('data-act')) {
       case 'toggle-filter': S.filterOpen = !S.filterOpen; renderBrowse(); break;
-      case 'reset': S.f = { q: '', phases: [], types: [], targets: [] }; renderBrowse(); break;
+      case 'reset': S.f = { q: '', phases: [], types: [], targets: [], chair: false }; renderBrowse(); break;
+      case 'chair-filter': S.f.chair = !S.f.chair; renderBrowse(); break;
       case 'clear-q': S.f.q = ''; renderBrowse(); $('q').focus(); break;
       case 'start': startSession(); break;
       case 'reveal': S.session.show = true; renderLearn(); break;
