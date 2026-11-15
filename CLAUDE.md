@@ -13,11 +13,13 @@ Web-App (PWA) zum Lesen und Lernen von Yoga-Posen für Andreas Yogalehrer-Ausbil
 - Online über GitHub Pages: https://aerdnanedak.github.io/asanas/ (Repo `AerdnaNedak/asanas`, öffentlich). Ein `git push` auf `main` veröffentlicht.
 - `index.html`: die ganze App (CSS und JS inline). `sw.js`: Offline-Cache für die App. `manifest.webmanifest` und Icons.
 - **Bei jeder App-Änderung** `CACHE` in `sw.js` und `VERSION` in `index.html` hochzählen.
-- Die Inhalte liegen **nicht** im Repo, sondern privat in der Dropbox. Die Texte stammen ursprünglich von Yoga Journal und dürfen nie in dieses (öffentliche) Repo.
-  - Quelle: `Dropbox/03 Apps/Yoga/notion-export/` (Notion-Export der Datenbank „Asanas Overview“)
-  - Flow Phase und Target: `Dropbox/03 Apps/Yoga/Vorschlag Flow Phase und Target.xlsx`, Spalten F und G
+- Die Inhalte liegen **nicht** im Repo, sondern privat in der Dropbox. Ein Teil der Texte stammt ursprünglich von Yoga Journal und darf nie in dieses (öffentliche) Repo.
+  - **Original (seit 15.11.2026):** `Dropbox/03 Apps/Yoga/posen/<id>.md`, eine Datei pro Pose. Kopf zwischen `---` mit `en, de, sa, types, targets, phases, chair, images, text`; danach Abschnitte mit `##` in fester Reihenfolge: Description, Sanskrit name, Step-by-step, Contraindications and cautions, Benefits, Deepen the pose, Beginner’s tip, Teacher tip, Preparatory poses, Counter poses, Variations, Follow-up poses, Cue card. Zeichnungen in `posen/bilder/`.
+  - `text:` sagt, woher der Text stammt: „Notion (Andrea)“ oder „Claude (Entwurf …, noch nicht geprüft)“. Die App weist Claude-Entwürfe aus.
+  - Neue Texte schreibt Claude in Andreas Stil (kurze Stichpunkte, Cue Card höchstens 10 Zeilen), **in eigenen Worten**, nie von Yoga Journal übernommen.
+  - Notion und `notion-export/` sind nur noch Archiv. `tools/umziehen.py` war der einmalige Umzug.
   - App-Daten: `Dropbox/03 Apps/Yoga/app-daten/asanas.json` und `app-daten/img/*.jpg`
-- `tools/daten-bauen.py` baut aus Export und Tabelle die App-Daten (Abschnitte vereinheitlichen, Bilder verkleinern, Tadasana als Dublette auslassen, Fotos aus dem Web weglassen). Danach lädt die App die neuen Daten beim nächsten Öffnen.
+- `tools/daten-bauen.py` baut aus `posen/` die App-Daten (Bilder verkleinern, Namen mit Prüfsumme). Danach lädt die App die neuen Daten beim nächsten Öffnen.
 - Die App liest über die Dropbox-API (dieselbe Dropbox-App und derselbe Schlüssel wie das Moderationsdeck, Code wird manuell eingefügt). Daten und Bilder liegen im Cache `asanas-daten`, die Bilder als Blob-URLs.
 - Lernen: Karten „English → Deutsch“, „Deutsch → English“, „Bild → Name“, optional „Sanskrit → Name“. Stufen 1–5 wie bei Karteikästen, Lernstand in `localStorage` (`as.learn`), nur auf dem jeweiligen Gerät.
 
@@ -33,6 +35,6 @@ Web-App (PWA) zum Lesen und Lernen von Yoga-Posen für Andreas Yogalehrer-Ausbil
 
 ## Offen
 
-- 67 Posen haben nur Grunddaten. Texte in Andreas Struktur ergänzen (eigene Formulierungen).
+- 48 Posen haben nur Grunddaten. Texte in Runden ergänzen: Build-up erledigt (Runde 1, 15.11.2026), danach Warm-up, Cool-down, Relaxation, Peak.
 - Zeichnungen fehlen bei vielen Posen; manche vorhandene Bilder sind Fotos statt Zeichnungen. Skill `codex-bild` im einheitlichen Stil.
 - Dropbox-Anmeldung auf iPhone/iPad durch Andrea testen.

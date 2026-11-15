@@ -183,7 +183,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 <script>
 (function () {
   'use strict';
-  var VERSION = '1';
+  var VERSION = '2';
   /* Dropbox-App-Schlüssel (öffentlich, kein Geheimnis). Dieselbe Dropbox-App wie beim Moderationsdeck. */
   var APP_KEY = 'prtle6jx22kouds';
   var DEFAULT_FOLDER = '/03 Apps/Yoga/app-daten';
@@ -467,7 +467,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
       p.types.map(function (x) { return '<span class="tag">' + esc(x) + '</span>'; }).join('') +
       p.targets.map(function (x) { return '<span class="tag tg">' + esc(x) + '</span>'; }).join('') +
       (p.chair ? '<span class="tag">Chair friendly</span>' : '') + '</div>';
-    if (S.data.proposal) h += '<p class="note">Flow Phase und Target sind Vorschläge und noch nicht geprüft.</p>';
+    var draft = /^claude/i.test(p.text || '');
+    if (S.data.proposal) h += '<p class="note">Flow Phase und Target sind Vorschläge und noch nicht geprüft.' + (draft ? ' Den Text hat Claude als Entwurf geschrieben.' : '') + '</p>';
     var cue = p.sections.filter(function (s) { return s.key === 'cue'; })[0];
     if (cue && cue.items.length) h += '<div class="cue"><h2>Cue card</h2><ol>' + cue.items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></div>';
     if (!p.full) h += '<div class="box">Für diese Pose gibt es bisher nur die Grunddaten. Die Beschreibung kommt später dazu.</div>';

@@ -6,6 +6,6 @@ Die App enthält keine Inhalte. Sie liest die Posen nach einmaliger Anmeldung au
 
 ## Daten aktualisieren
 
-1. In Notion „Asanas Overview“ exportieren (Markdown & CSV, mit Unterseiten und Dateien) und nach `Dropbox/03 Apps/Yoga/notion-export/` entpacken.
+1. Posen bearbeiten in `Dropbox/03 Apps/Yoga/posen/` (eine Markdown-Datei pro Pose, Zeichnungen in `posen/bilder/`).
 2. `python3 tools/daten-bauen.py`
 3. In der App: Einstellungen → „Jetzt aktualisieren“ (oder einfach neu öffnen).
