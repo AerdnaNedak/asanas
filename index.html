@@ -183,7 +183,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 <script>
 (function () {
   'use strict';
-  var VERSION = '3';
+  var VERSION = '4';
   /* Dropbox-App-Schlüssel (öffentlich, kein Geheimnis). Dieselbe Dropbox-App wie beim Moderationsdeck. */
   var APP_KEY = 'prtle6jx22kouds';
   var DEFAULT_FOLDER = '/03 Apps/Yoga/app-daten';
@@ -622,7 +622,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     if (!t) return;
     if (t.hasAttribute('data-f')) {
       var g = t.getAttribute('data-f'), v = t.getAttribute('data-v'), arr = S.f[g], ix = arr.indexOf(v);
-      if (ix >= 0) arr.splice(ix, 1); else arr.push(v);
+      if (g === 'phases') S.f.phases = (arr.length === 1 && ix === 0) ? [] : [v]; /* Phasen: immer nur eine */
+      else if (ix >= 0) arr.splice(ix, 1); else arr.push(v);
       renderBrowse(); return;
     }
     if (t.hasAttribute('data-go')) { var id = t.getAttribute('data-go'); if (id) location.hash = '#/pose/' + encodeURIComponent(id); return; }
